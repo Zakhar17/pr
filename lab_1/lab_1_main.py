@@ -56,6 +56,7 @@ while True:
                     break
             else:
                 break
+        out.release()
         print('video recorded')
         # Init variables for Audi logo motion
         i = 0
@@ -101,8 +102,8 @@ while True:
                 break
 
         # Release everything if job is finished
-        out.release()
-        print('video record finished')
+        cap.release()
+        print('video show finished')
 
 cam.release()
 cv2.destroyAllWindows()
