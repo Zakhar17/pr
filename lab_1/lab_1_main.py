@@ -11,7 +11,7 @@ while True:
     if not ret:
         print("failed to grab frame")
         break
-        
+
     frame = cv2.flip(frame, 1)
     cv2.imshow("main_frame", frame)
 
@@ -41,25 +41,42 @@ while True:
     elif k & 0xFF == ord('r'):
         # Define the codec and create VideoWriter object
         fourcc = cv2.VideoWriter_fourcc(*'DIVX')
-        out = cv2.VideoWriter(f'..\\storage\\lab_1\\output_{random.randint(0, 100000000)}.avi', fourcc, 20.0, RESOLUTION)
-        # Init variables for Audi logo motion
-        i = 0
-        next_point = np.array(rand_2d_point(0, RESOLUTION[0]-1, 0, RESOLUTION[1]-1))
-        next_radius = random.randint(15, 45)
-        next_color = np.random.randint(0, 255, 3)
-        motion_step = random.randint(150, 250)
-        shift = np.array([[-1.5, 0], [1.5, 0], [3, 0]])
-
-        while (cam.isOpened()):
+        out = cv2.VideoWriter('..\\storage\\lab_1\\output_.avi', fourcc, 20.0, RESOLUTION)
+        print('recording video')
+        while cam.isOpened():
             ret, frame = cam.read()
             if ret == True:
                 # Reset direction, speed, size and color
                 frame = cv2.flip(frame, 1)
+
+                out.write(frame)
+
+                cv2.imshow('main_frame', frame)
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
+            else:
+                break
+        print('video recorded')
+        # Init variables for Audi logo motion
+        i = 0
+        next_point = np.array(rand_2d_point(0, RESOLUTION[0] - 1, 0, RESOLUTION[1] - 1))
+        next_radius = random.randint(15, 45)
+        next_color = np.random.randint(0, 255, 3)
+        motion_step = random.randint(150, 250)
+        shift = np.array([[-1.5, 0], [1.5, 0], [3, 0]])
+        cap = cv2.VideoCapture('..\\storage\\lab_1\\output_.avi')
+        print('showing recorded video')
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if ret == True:
+                # Reset direction, speed, size and color
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
                 if i % motion_step == 0:
                     prev_color, next_color = next_color, np.random.randint(0, 255, 3)
-                    prev_radius, next_radius = next_radius, random.randint(15, 100)
+                    prev_radius, next_radius = next_radius, random.randint(15, 200)
                     prev_point, next_point = next_point, np.array(rand_2d_point(0, RESOLUTION[0] - 1, 0, RESOLUTION[1] - 1))
-                    motion_step = random.randint(150, 250)
+                    motion_step = random.randint(100, 250)
 
                     delta_point = (next_point - prev_point) / motion_step
                     delta_radius = (next_radius - prev_radius) / motion_step
@@ -75,11 +92,10 @@ while True:
                 frame = cv2.circle(frame, tuple((new_point + shift[0]*new_radius).astype(int).tolist()), new_radius, new_color, 10)
                 frame = cv2.circle(frame, tuple((new_point + shift[1]*new_radius).astype(int).tolist()), new_radius, new_color, 10)
                 frame = cv2.circle(frame, tuple((new_point + shift[2]*new_radius).astype(int).tolist()), new_radius, new_color, 10)
-                out.write(frame)
                 i += 1
 
-                cv2.imshow('main_frame', frame)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
+                cv2.imshow('recorded_video_frame', frame)
+                if cv2.waitKey(20) & 0xFF == ord('q'):
                     break
             else:
                 break
